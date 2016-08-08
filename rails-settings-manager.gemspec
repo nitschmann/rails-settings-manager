@@ -11,8 +11,11 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/fnitschmann/rails-settings-manager"
   spec.license       = "MIT"
 
-  spec.summary       = ""
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
+  spec.summary       = "Global settings management for Rails applications with ActiveRecord"
+  spec.description   = """
+  A simple extension-plugin for Ruby on Rails application for global settings management in the Database with an easy key-value interface.
+  It keeps track of the settings with the help of standard ActiveRecord methods.
+  """
 
   spec.files         = Dir.glob("lib/**/*") + ["README.md", "LICENSE.txt"]
   spec.require_paths = ["lib"]
