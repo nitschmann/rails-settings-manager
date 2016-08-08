@@ -7,7 +7,8 @@ module SettingsManager
 
       validates_inclusion_of :key,
         in: ->(r) { r.class.allowed_settings_keys.map { |k| k.to_s } },
-        if: Proc.new { |r| r.class.allowed_settings_keys.any? }
+        if: Proc.new { |r| r.class.allowed_settings_keys.any? },
+        message: "`%{value}` is an unallowed setting"
 
       validates_uniqueness_of :base_obj_id,
         :scope => [:key, :base_obj_type]
