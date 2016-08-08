@@ -1,0 +1,5 @@
+defaults: &defaults
+  page_title: "My site"
+
+test:
+  <<: *defaults
