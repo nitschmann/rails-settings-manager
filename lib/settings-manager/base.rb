@@ -45,7 +45,7 @@ module SettingsManager
 
         if @base_obj
           attributes[:base_obj_id] = @base_obj.id
-          attributes[:base_obj_type] = @base_obj.class.to_s
+          attributes[:base_obj_type] = @base_obj.class.base_class.to_s
         end
 
         record = object(key) || self.new(attributes)

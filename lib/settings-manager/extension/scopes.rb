@@ -5,7 +5,7 @@ module SettingsManager
 
       included do
         scope :with_settings, lambda {
-          class_name = self.base_class.name
+          class_name = self.base_class.to_s
           settings_table = self.settings_base_class.to_s.constantize.table_name
           table = self.table_name
 
@@ -18,7 +18,7 @@ module SettingsManager
         }
 
         scope :with_settings_for, lambda { |var|
-          class_name = self.base_class.name
+          class_name = self.base_class.to_s
           settings_table = self.settings_base_class.to_s.constantize.table_name
           table = self.table_name
 
@@ -30,7 +30,7 @@ module SettingsManager
         }
 
         scope :without_settings, lambda {
-          class_name = self.base_class.name
+          class_name = self.base_class.to_s
           settings_table = self.settings_base_class.to_s.constantize.table_name
           table = self.table_name
 
@@ -42,7 +42,7 @@ module SettingsManager
         }
 
         scope :without_settings_for, lambda { |var|
-          class_name = self.base_class.name
+          class_name = self.base_class.to_s
           settings_table = self.settings_base_class.to_s.constantize.table_name
           table = self.table_name
 

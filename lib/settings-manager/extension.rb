@@ -16,7 +16,7 @@ module SettingsManager
         def base_query
           where(
             :base_obj_id => @base_obj.id,
-            :base_obj_type => @base_obj.class.to_s
+            :base_obj_type => @base_obj.class.base_class.to_s
           )
         end
 

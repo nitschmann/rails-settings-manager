@@ -143,10 +143,10 @@ describe SettingsManager::Extension do
           let(:key) { "github_username" }
 
           specify do
-            expected_msg = "unallowed setting key `#{key}`"
+            expected_msg = "unallowed key `#{key}`"
 
             expect{ user.settings[key] }.
-              to raise_error(SettingsManager::Errors::KeyNotDefiniedError, expected_msg)
+              to raise_error(SettingsManager::Errors::KeyInvalidError, expected_msg)
           end
         end
 
@@ -176,6 +176,21 @@ describe SettingsManager::Extension do
             it "returns value from database" do
               expect(user.settings["twitter_handle"]).to eql(value)
             end
+          end
+        end
+      end
+
+      describe "#[]=" do
+        let(:user) { LimitedUser.create(:username => "tester") }
+
+        context "invalid key" do
+          let(:key) { "foo" }
+
+          specify do
+            expected_msg = "unallowed key `#{key}`"
+
+            expect{ user.settings[key] = "bar" }.
+              to raise_error(SettingsManager::Errors::KeyInvalidError, expected_msg)
           end
         end
       end
