@@ -4,8 +4,8 @@ require "settings-manager/validation"
 
 module SettingsManager
   class Base < ActiveRecord::Base
-    include SettingsManager::Default
-    include SettingsManager::Validation
+    include Default
+    include Validation
 
     self.abstract_class = true
 
