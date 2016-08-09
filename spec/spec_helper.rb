@@ -66,8 +66,9 @@ RSpec.configure do |config|
   config.before(:all) do
     class Setting < SettingsManager::Base ; end
 
-    ActiveRecord::Base.connection.execute("delete from settings")
-    # Rails.cache.clear
+    class User < ActiveRecord::Base
+      include SettingsManager::Extension
+    end
   end
 
   config.after(:all) { Object.send(:remove_const, :Setting) }

@@ -28,7 +28,7 @@ module SettingsManager
     module ClassMethods
       def settings_base_class(class_name = nil)
         if class_name.present?
-          @settings_base_class = class_name
+          @settings_base_class = class_name.to_s
         else
           @settings_base_class || "Setting"
         end
