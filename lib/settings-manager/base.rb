@@ -54,11 +54,10 @@ module SettingsManager
 
         value
       rescue ActiveRecord::RecordInvalid => e
-        e.record.errors.full_messages.each do |msg|
-          self.add_error(msg)
-        end
+        new_exception = Errors::InvalidError.new
+        new_exception.errors << e.record.errors
 
-        raise Errors::InvalidError
+        raise new_exception
       end
 
       def destroy!(key)
@@ -103,9 +102,21 @@ module SettingsManager
 
       def set(settings = {})
         ActiveRecord::Base.transaction do
+          exception = nil
+
           settings.each do |key, value|
-            self[key.to_s] = value
+            begin
+              self[key.to_s] = value
+            rescue Errors::KeyInvalidError => e
+              exception ||= Errors::InvalidError.new
+              exception.errors << e.message
+            rescue Errors::InvalidError => e
+              exception ||= Errors::InvalidError.new
+              e.errors.each { |error| exception.errors << error }
+            end
           end
+
+          raise exception if exception.present?
         end
 
         self.get_all

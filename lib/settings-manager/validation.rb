@@ -3,8 +3,6 @@ module SettingsManager
     extend ActiveSupport::Concern
 
     included do
-      after_commit :reset_class_errors
-
       validates_inclusion_of :key,
         in: ->(r) { r.class.allowed_settings_keys.map { |k| k.to_s } },
         if: Proc.new { |r| r.class.allowed_settings_keys.any? },
@@ -18,18 +16,7 @@ module SettingsManager
       self.class.allowed_settings_keys
     end
 
-    def reset_class_errors
-      self.class.reset_errors
-    end
-
     module ClassMethods
-      attr_reader :errors
-
-      def add_error(message)
-        @errors = [] if @errors.nil?
-        @errors << message
-      end
-
       def allowed_settings_keys(keys = nil)
         if keys.present? && keys.kind_of?(Array)
           @allowed_settings_keys = keys
@@ -38,23 +25,11 @@ module SettingsManager
         end
       end
 
-      def errors
-        @errors || []
-      end
-
       def key_allowed?(key)
         if allowed_settings_keys.any?
           allowed_settings_keys.include?(key.to_sym)
         else
           true
-        end
-      end
-
-      def reset_errors
-        @errors = []
-
-        if @base_obj
-          @base_obj.class.settings_base_class.constantize.reset_errors
         end
       end
 

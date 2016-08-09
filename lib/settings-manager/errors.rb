@@ -2,7 +2,38 @@ module SettingsManager
   module Errors
     class BaseError < StandardError ; end
     class KeyInvalidError < BaseError ; end
-    class InvalidError < BaseError ; end
     class SettingNotFoundError < BaseError ; end
+
+    class InvalidError < BaseError
+      class ComplexErrorArray < Array
+        def <<(obj)
+          unless obj.is_a?(String) || obj.is_a?(ActiveModel::Errors)
+            raise ArgumentError
+          end
+
+          super
+        end
+
+        def messages
+          messages = []
+
+          self.each do |message|
+            if message.is_a?(String)
+              messages << message
+            elsif message.is_a?(ActiveModel::Errors)
+              message.full_messages.each { |m| messages << m }
+            end
+          end
+
+          messages.uniq
+        end
+      end
+
+      attr_reader :errors
+
+      def initialize
+        @errors = ComplexErrorArray.new
+      end
+    end
   end
 end

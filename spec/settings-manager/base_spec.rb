@@ -180,10 +180,19 @@ describe SettingsManager::Base do
 
     context "key limitations" do
       context "key is invalid" do
-        specify do
-          expect{ LimitedKeySetting.set(:foo => "bar") }.
-            to raise_error(SettingsManager::Errors::KeyInvalidError)
+        subject do
+          begin
+            LimitedKeySetting.set(:foo => "bar")
+          rescue => e
+            e
+          end
         end
+
+        specify do
+          expect(subject).to be_instance_of(SettingsManager::Errors::InvalidError)
+        end
+
+        specify { expect(subject.errors).not_to be_empty }
       end
 
       context "key is valid" do
