@@ -34,8 +34,14 @@ module SettingsManager
 
       def []=(key, value)
         key = key.to_s
+        attributes = { :key => key }
 
-        record = object(key) || self.new(:key => key)
+        if @base_obj
+          attributes[:base_obj_id] = @base_obj.id
+          attributes[:base_obj_type] = @base_obj.class.to_s
+        end
+
+        record = object(key) || self.new(attributes)
         record.value = value
         record.save!
 
@@ -61,7 +67,7 @@ module SettingsManager
       def get_all
         result = default_settings
 
-        without_linked_base_obj.each do |record|
+        base_query.each do |record|
           result[record.key] = record.value
         end
 
@@ -85,10 +91,20 @@ module SettingsManager
       def object(key)
         return nil unless Rails.application.initialized? && table_exists?
 
-        without_linked_base_obj.find_by(:key => key.to_s)
+        base_query.find_by(:key => key.to_s)
       end
 
-      def without_linked_base_obj
+      def set(settings = {})
+        ActiveRecord::Base.transaction do
+          settings.each do |key, value|
+            self[key.to_s] = value
+          end
+        end
+
+        self.get_all
+      end
+
+      def base_query
         where(:base_obj_id => nil, :base_obj_type => nil)
       end
     end
