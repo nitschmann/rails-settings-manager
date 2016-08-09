@@ -1,5 +1,6 @@
 defaults: &defaults
   page_title: "My site"
+  twitter_handle: "twitter-user"
 
 test:
   <<: *defaults

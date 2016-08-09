@@ -52,6 +52,10 @@ module SettingsManager
 
       def reset_errors
         @errors = []
+
+        if @base_obj
+          @base_obj.class.settings_base_class.constantize.reset_errors
+        end
       end
 
       def validates_setting(value, options = {})

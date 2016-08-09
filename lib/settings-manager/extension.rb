@@ -9,19 +9,22 @@ module SettingsManager
     def settings
       base_class = self.class.settings_base_class.to_s.constantize
 
-      wrapped_class = Class.new(base_class) do
-        class << self
-          attr_reader :base_obj
+      wrapped_class = base_class.clone
+      wrapped_class.instance_variable_set(:@base_obj, self)
 
-          def base_query
-            where(
-              :base_obj_id => @base_obj.id,
-              :base_obj_type => @base_obj.class.to_s
-            )
-          end
+      wrapped_class.instance_eval do
+        def base_query
+          where(
+            :base_obj_id => @base_obj.id,
+            :base_obj_type => @base_obj.class.to_s
+          )
+        end
+
+        def model_name
+          @base_obj.class.settings_base_class.to_s.constantize.model_name
         end
       end
-      wrapped_class.instance_variable_set(:@base_obj, self)
+
       wrapped_class
     end
 

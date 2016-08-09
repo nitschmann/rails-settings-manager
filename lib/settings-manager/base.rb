@@ -7,6 +7,8 @@ module SettingsManager
     include Default
     include Validation
 
+    attr_reader :base_obj
+
     self.abstract_class = true
 
     def value

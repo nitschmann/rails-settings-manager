@@ -31,8 +31,8 @@ describe SettingsManager::Extension do
     describe ".base_obj" do
       let(:user) { User.create(:username => "tester") }
 
-      specify { expect(user.settings).to respond_to(:base_obj) }
-      specify { expect(user.settings.base_obj).to eql(user) }
+      subject { user.settings.instance_variable_get(:@base_obj) }
+      specify { expect(subject).to eql(user) }
     end
 
     describe ".base_query" do
@@ -42,6 +42,15 @@ describe SettingsManager::Extension do
       specify { expect(query).to include(".\"base_obj_id\" = #{user.id}") }
       specify do
         expect(query).to include(".\"base_obj_type\" = '#{user.class.to_s}'")
+      end
+    end
+
+    describe ".model_name" do
+      let(:user) { User.create(:username => "tester") }
+
+      specify do
+        expect(user.settings.model_name).
+          to equal(AnotherSetting.superclass.model_name)
       end
     end
 
@@ -120,11 +129,55 @@ describe SettingsManager::Extension do
 
     context "with limitations" do
       before(:all) do
-        LimitedUserUserSetting = Class.new(Setting) do
+        LimitedUserSetting = Class.new(Setting) do
           allowed_settings_keys [:twitter_handle]
         end
 
-        LimitedUser = Class.new(User) { settings_base_class UserSetting }
+        LimitedUser = Class.new(User) { settings_base_class LimitedUserSetting }
+      end
+
+      describe "#[]" do
+        let(:user) { LimitedUser.create(:username => "tester") }
+
+        context "invalid key" do
+          let(:key) { "github_username" }
+
+          specify do
+            expected_msg = "unallowed setting key `#{key}`"
+
+            expect{ user.settings[key] }.
+              to raise_error(SettingsManager::Errors::KeyNotDefiniedError, expected_msg)
+          end
+        end
+
+        context "valid key" do
+          context "default" do
+            specify { expect(user.settings.twitter_handle).to be_nil }
+          end
+
+          context "not in database present, but in default config" do
+            before do
+              LimitedUserSetting.
+                default_settings_config(File.expand_path("../../config/default_settings.yml", __FILE__))
+            end
+
+            after { LimitedUserSetting.default_settings_config(nil) }
+
+            it "returns the predefined default value" do
+              expect(user.settings["twitter_handle"]).to eql("twitter-user")
+            end
+          end
+
+          context "present in database" do
+            let(:value) { "ACoolTwitterUser" }
+
+            before { user.settings["twitter_handle"] = value }
+
+            it "returns value from database" do
+              expect(user.settings["twitter_handle"]).to eql(value)
+            end
+          end
+        end
       end
     end
   end

@@ -130,4 +130,70 @@ describe SettingsManager::Base do
       end
     end
   end
+
+  describe "#get_all" do
+    context "default" do
+      specify { expect(DefaultSetting.get_all).to be_kind_of(Hash) }
+      specify { expect(DefaultSetting.get_all.keys.length).to eql(0) }
+    end
+
+    context "with default config file" do
+      before(:all) do
+        DefaultSetting.
+          default_settings_config(File.expand_path("../../config/default_settings.yml", __FILE__))
+      end
+
+      after(:all) { DefaultSetting.default_settings_config(nil) }
+
+      specify { expect(DefaultSetting.get_all).to be_kind_of(Hash) }
+      specify { expect(DefaultSetting.get_all.keys.length).to be >= 1 }
+    end
+
+    context "with present records" do
+      before { DefaultSetting["foo"] = "bar" }
+
+      specify { expect(DefaultSetting.get_all).to be_kind_of(Hash) }
+      specify { expect(DefaultSetting.get_all.keys.length).to be >= 1 }
+      specify { expect(DefaultSetting.get_all.keys).to include("foo") }
+    end
+  end
+
+  describe "#object" do
+    context "default" do
+      specify { expect(DefaultSetting.object("unprsent_key")).to be_nil }
+    end
+  end
+
+  describe "#set" do
+    context "no limitations" do
+      let(:settings) { {"foo" => "bar", "batz" => "barz"} }
+
+      subject { DefaultSetting.set(settings) }
+      specify { expect(subject).to eql(settings) }
+    end
+
+    context "key limitations" do
+      context "key is invalid" do
+        specify do
+          expect{ LimitedKeySetting.set(:foo => "bar") }.
+            to raise_error(SettingsManager::Errors::InvalidError)
+        end
+      end
+
+      context "key is valid" do
+        let(:key) { "page_title" }
+        let(:value) { "A cool page" }
+
+        it "creates new record" do
+          expect{ LimitedKeySetting.set("#{key}" => "#{value}") }.
+            to change{ LimitedKeySetting.count }.by(1)
+        end
+
+        it "includes value in result" do
+          expect(LimitedKeySetting.set("#{key}" => "#{value}")[key]).
+            to eql(value)
+        end
+      end
+    end
+  end
 end
