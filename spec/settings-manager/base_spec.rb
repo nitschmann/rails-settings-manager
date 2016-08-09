@@ -32,11 +32,13 @@ describe SettingsManager::Base do
 
     context "key limitations" do
       context "invalid key" do
-        specify do
-          expected_msg = "unallowed setting key `foo`"
+        let(:key) { "foo" }
 
-          expect{ LimitedKeySetting["foo"] }.
-            to raise_error(SettingsManager::Errors::KeyNotDefiniedError, expected_msg)
+        specify do
+          expected_msg = "unallowed key `#{key}`"
+
+          expect{ LimitedKeySetting[key] }.
+            to raise_error(SettingsManager::Errors::KeyInvalidError, expected_msg)
         end
       end
 
@@ -85,9 +87,13 @@ describe SettingsManager::Base do
 
     context "key limitations" do
       context "with invalid key" do
+        let(:key) { "foo" }
+
         specify do
-          expect{ LimitedKeySetting["foo"] = "bar" }.
-            to raise_error(SettingsManager::Errors::InvalidError)
+          expected_msg = "unallowed key `#{key}`"
+
+          expect{ LimitedKeySetting[key] = "bar" }.
+            to raise_error(SettingsManager::Errors::KeyInvalidError, expected_msg)
         end
       end
 
@@ -176,7 +182,7 @@ describe SettingsManager::Base do
       context "key is invalid" do
         specify do
           expect{ LimitedKeySetting.set(:foo => "bar") }.
-            to raise_error(SettingsManager::Errors::InvalidError)
+            to raise_error(SettingsManager::Errors::KeyInvalidError)
         end
       end
 

@@ -30,12 +30,17 @@ module SettingsManager
             default_setting_for(key)
           end
         else
-          raise Errors::KeyNotDefiniedError, "unallowed setting key `#{key}`"
+          raise Errors::KeyInvalidError, "unallowed key `#{key}`"
         end
       end
 
       def []=(key, value)
         key = key.to_s
+
+        unless key_allowed?(key)
+          raise Errors::KeyInvalidError, "unallowed key `#{key}`"
+        end
+
         attributes = { :key => key }
 
         if @base_obj
