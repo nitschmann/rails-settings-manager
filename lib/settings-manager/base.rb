@@ -30,7 +30,7 @@ module SettingsManager
             default_setting_for(key)
           end
         else
-          raise Errors::KeyInvalidError, "unallowed key `#{key}`"
+          raise Errors::KeyInvalidError.new(key)
         end
       end
 
@@ -38,7 +38,7 @@ module SettingsManager
         key = key.to_s
 
         unless key_allowed?(key)
-          raise Errors::KeyInvalidError, "unallowed key `#{key}`"
+          raise Errors::KeyInvalidError.new(key)
         end
 
         attributes = { :key => key }

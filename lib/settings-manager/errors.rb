@@ -1,7 +1,6 @@
 module SettingsManager
   module Errors
     class BaseError < StandardError ; end
-    class KeyInvalidError < BaseError ; end
     class SettingNotFoundError < BaseError ; end
 
     class InvalidError < BaseError
@@ -33,6 +32,18 @@ module SettingsManager
 
       def initialize
         @errors = ComplexErrorArray.new
+      end
+    end
+
+    class KeyInvalidError < BaseError
+      attr_reader :key
+
+      def initialize(key = nil)
+        @key = key || ""
+      end
+
+      def message
+        "unallowed key `#{@key}`"
       end
     end
   end
