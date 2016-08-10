@@ -42,5 +42,27 @@ describe SettingsManager::Validation do
           to raise_error(SettingsManager::Errors::KeyInvalidError, expected_msg)
       end
     end
+
+    context "invalid value for valid key" do
+      let(:key) { "site_name" }
+      let(:value) { "a" }
+
+      subject do
+        begin
+          ValidateSetting[key] = value
+        rescue => e
+          e
+        end
+      end
+
+      it "returns an error" do
+        expect(subject).
+          to be_a(SettingsManager::Errors::InvalidError)
+      end
+
+      it "includes an error message" do
+        expect(subject.errors.length).to eql(1)
+      end
+    end
   end
 end
